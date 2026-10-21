@@ -1,0 +1,58 @@
+# ============================================================
+# 飞牛影视 SRTM 实时监控 配置示例
+# 用法：复制本文件为 config.yaml，填入真实值后启动。
+# ============================================================
+
+# NAS 地址：HTTP 默认 5666 端口，HTTPS 默认 5667（自签证书）
+nas_url: "http://192.168.1.100:5666"
+
+# 认证方式一：用户名 + 密码（登录接口获取 token，token 过期时自动重登）
+auth:
+  username: "admin"
+  password: "your_password"
+
+# 认证方式二：直接配置 token（可选；配置后跳过登录。
+# 若未配置用户名密码，token 过期后将无法自动重登，需要手动更新）
+token: ""
+
+# authx 签名 secret（必填）
+# 获取方法：浏览器登录飞牛影视后 Ctrl+U 查看网页源码，
+# 搜索 ",s,l,c,o,e].join(\"_\") 左侧引号内的字符串即是。
+secret: "your_authx_secret"
+
+# 可选：抓包发现的 api-key 请求头（部分版本需要，没有则留空）
+api_key: ""
+
+# 媒体库映射：监控目录 -> 媒体库
+# 每项必须配置 watch_dir；library_id（guid）与 library_name 二选一：
+#   - 配 library_id：直接使用该 guid 触发扫描；
+#   - 只配 library_name：启动时自动调用 mdb/list 解析 guid。
+# watch_dir 为容器内路径，需与 docker-compose.yml 的挂载一致。
+libraries:
+  - watch_dir: "/strm/movie1"
+    library_id: ""            # 例：2c9f1a4e-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    library_name: "电影"      # 未填 library_id 时按名称解析
+    recursive: true
+  - watch_dir: "/strm/tv1"
+    library_id: ""
+    library_name: "电视剧"
+    recursive: true
+
+# 事件去抖静默期（秒）：批量写入 strm 时事件密集，
+# 静默期内合并事件，静默期结束只触发一次扫描。
+debounce_seconds: 5
+
+# 单次请求超时（秒）
+timeout: 10
+
+# 失败重试参数（超时/网络错误/5xx 自动重试）
+retry:
+  max_retries: 5       # 单次请求最大重试次数
+  base_backoff: 2.0    # 指数退避基础值（秒）：2^n 递增
+  max_backoff: 60.0    # 退避上限（秒）
+  max_relogin: 3       # code=-2 鉴权失效时最多重新登录次数
+
+# 日志：容器内 /logs 为挂载卷（docker-compose 中映射到宿主机 ./logs）
+log_dir: "/logs"
+log_file: "monitor.log"
+log_level: "INFO"      # DEBUG / INFO / WARNING / ERROR

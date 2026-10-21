@@ -1,0 +1,50 @@
+# ============================================================
+# 飞牛影视 SRTM 实时监控 运行配置
+# 请按实际环境填写后保存（字段说明见 config.example.yaml / README.md）
+# ============================================================
+
+# NAS 地址
+nas_url: "http://192.168.1.100:5666"
+
+# 认证：用户名 + 密码（或直接填 token）
+auth:
+  username: "admin"
+  password: "your_password"
+
+# 可选：直接配置 token（留空则用账号密码登录）
+token: ""
+
+# authx 签名 secret（必填，从飞牛影视网页 JS 源码提取）
+secret: "your_authx_secret"
+
+# 可选 api-key 请求头
+api_key: ""
+
+# 媒体库映射：监控目录 -> 媒体库
+libraries:
+  - watch_dir: "/strm/movie1"
+    library_id: ""
+    library_name: "电影"
+    recursive: true
+  - watch_dir: "/strm/tv1"
+    library_id: ""
+    library_name: "电视剧"
+    recursive: true
+
+# 去抖静默期（秒）
+debounce_seconds: 5
+
+# 请求超时（秒）
+timeout: 10
+
+# 重试参数
+retry:
+  max_retries: 5
+  base_backoff: 2.0
+  max_backoff: 60.0
+  max_relogin: 3
+
+# 日志
+log_dir: "/logs"
+log_file: "monitor.log"
+log_level: "INFO"
