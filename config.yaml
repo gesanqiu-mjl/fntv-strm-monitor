@@ -22,13 +22,17 @@ api_key: ""
 
 # 媒体库映射：监控目录 -> 媒体库
 libraries:
-  - watch_dir: "/strm/movie1"
+  - watch_dir: "/strm/updating"
     library_id: ""
-    library_name: "电影"
+    library_name: "更新中"
     recursive: true
-  - watch_dir: "/strm/tv1"
+  - watch_dir: "/strm/overseas"
     library_id: ""
-    library_name: "电视剧"
+    library_name: "海外纪录片"
+    recursive: true
+  - watch_dir: "/strm/doc"
+    library_id: ""
+    library_name: "纪录片"
     recursive: true
 
 # 去抖静默期（秒）
