@@ -1,8 +1,7 @@
 # 飞牛影视 SRTM 实时监控
 services:
   fntv-strm-monitor:
-    build: .
-    image: fntv-strm-monitor:latest
+    image: ghcr.io/gesanqiu-mjl/fntv-strm-monitor:latest
     container_name: fntv-strm-monitor
     restart: unless-stopped
     volumes:

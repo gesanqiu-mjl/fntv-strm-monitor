@@ -10,8 +10,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 拷贝项目代码与默认配置
+# 拷贝项目代码与默认配置（.dockerignore 已排除真实 config.yaml，避免账号密码进镜像）
 COPY . .
+
+# 用模板生成容器内默认配置文件；用户挂载的真实 config.yaml 会覆盖它
+COPY config.example.yaml /app/config.yaml
 
 # 容器内默认监控根目录与日志卷目录
 RUN mkdir -p /strm /logs

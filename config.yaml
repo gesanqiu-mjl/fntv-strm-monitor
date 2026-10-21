@@ -4,12 +4,12 @@
 # ============================================================
 
 # NAS 地址
-nas_url: "http://192.168.1.100:5666"
+nas_url: "http://192.168.1.106:5666"
 
 # 认证：用户名 + 密码（或直接填 token）
 auth:
-  username: "admin"
-  password: "your_password"
+  username: "gesanqiu"
+  password: "sxt010326"
 
 # 可选：直接配置 token（留空则用账号密码登录）
 token: ""

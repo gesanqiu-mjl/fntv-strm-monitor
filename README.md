@@ -26,7 +26,7 @@ AIGC:
 | 失败重试 | 超时 / 网络错误 / 5xx 指数退避重试；`code=-2` 自动重新登录后重试 |
 | 已扫描忽略 | `code=-14`（已有扫描任务在跑）视为成功忽略 |
 | 日志输出 | 记录 strm 新增 / 删除时间、触发扫描时间；stdout + 文件双通道 |
-| Docker 封装 | `python:3.11-slim`，一键 docker compose 部署 |
+| Docker 封装 | `python:3.11-slim`，镜像自动发布 ghcr.io，NAS 直接 `docker compose up -d` 拉取 |
 
 ## 目录结构
 
@@ -45,6 +45,7 @@ fntv-strm-monitor/
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
+├── .github/workflows/docker-build.yml   # 自动构建并推送 ghcr.io 镜像
 └── README.md
 ```
 
@@ -57,7 +58,9 @@ pip install -r requirements.txt
 python main.py --config config.yaml
 ```
 
-### 方式二：Docker 部署
+### 方式二：Docker 部署（推荐，镜像发布在 ghcr.io）
+
+镜像由 GitHub Actions 在 push 到 master 时自动构建并推送到 `ghcr.io/gesanqiu-mjl/fntv-strm-monitor:latest`，NAS 上无需本地构建。
 
 1. 复制模板并填写配置：
 
@@ -66,13 +69,13 @@ cp config.example.yaml config.yaml
 # 编辑 config.yaml：NAS 地址、账号/密码或 token、secret、媒体库映射
 ```
 
-2. 编辑 `docker-compose.yml`，把 `/path/to/strm/movie1`、`/path/to/strm/tv1` 替换为实际 strm 目录，确保与 `config.yaml` 中 `libraries[].watch_dir` 一一对应。
+2. 编辑 `docker-compose.yml`，将 strm 目录挂载改为 NAS 实际路径（默认已配置 `/vol1/1000/容器/LitePan/strm/更新中|海外纪录片|纪录片`），确保与 `config.yaml` 中 `libraries[].watch_dir` 一一对应。
 
-3. 构建并启动：
+3. 拉取镜像并启动（首次需先登录 ghcr.io 私有镜像，见常见问题 Q8）：
 
 ```bash
-docker compose up -d --build
-docker logs -f fntv-strm-monitor   # 实时查看日志
+docker compose up -d
+docker compose logs -f fntv-strm-monitor   # 实时查看日志
 ```
 
 日志同时写入宿主机 `./logs/monitor.log`（挂载卷）。
@@ -158,6 +161,9 @@ docker logs -f fntv-strm-monitor   # 实时查看日志
 
 **Q7: 非容器环境如何运行？**
 直接 `python main.py --config config.yaml`，将 `watch_dir` 改为本地实际路径、`log_dir` 改为本地目录即可。
+
+**Q8: NAS 拉取 ghcr.io 镜像报 denied / unauthorized？**
+镜像随私有仓库发布在 ghcr.io（默认私有），需先登录：`echo "<你的GitHub PAT>" | docker login ghcr.io -u gesanqiu-mjl --password-stdin`。PAT 需勾选 `read:packages` 权限；登录一次即可。
 
 ## 注意事项
 

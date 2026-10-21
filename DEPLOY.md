@@ -59,13 +59,18 @@ vi config.yaml
 
 如需调整时区，直接修改 `environment` 下的 `TZ`；日志目录默认挂载 `./logs`。
 
-## 4. 构建并启动
+## 4. 拉取镜像并启动
+
+镜像由 GitHub Actions 自动构建并发布到 `ghcr.io/gesanqiu-mjl/fntv-strm-monitor:latest`，无需本地构建。私有仓库的镜像默认私有，首次拉取需先登录：
 
 ```bash
-docker compose up -d --build
+# 使用 GitHub PAT（需 read:packages 权限）登录 ghcr.io
+echo "<你的GitHub PAT>" | docker login ghcr.io -u gesanqiu-mjl --password-stdin
+
+docker compose up -d
 ```
 
-- 首次会构建镜像 `fntv-strm-monitor:latest` 并后台启动容器 `fntv-strm-monitor`。
+- 首次会自动拉取 ghcr.io 镜像 `ghcr.io/gesanqiu-mjl/fntv-strm-monitor:latest` 并后台启动容器 `fntv-strm-monitor`。
 - 配置文件以只读方式挂载（`config.yaml:/app/config.yaml:ro`），strm 目录只读挂载，不会修改原文件。
 
 ## 5. 查看日志
@@ -92,10 +97,11 @@ tail -f ./logs/monitor.log
 
 ```bash
 git pull
-docker compose up -d --build
+docker compose pull          # 拉取最新 ghcr.io 镜像
+docker compose up -d         # 用新镜像重建容器
 ```
 
-Compose 会检测到代码变化并重建镜像、滚动重启容器，config.yaml 保持不变。
+镜像由 GitHub Actions 自动构建，更新只需拉取新镜像并重建容器，config.yaml 保持不变。
 
 ## 7. 停止与卸载
 
@@ -106,9 +112,10 @@ docker compose down --rmi local   # 同时删除本地构建镜像
 
 ## 8. 常见问题
 
-- **容器一直重启 / 日志报找不到配置**：确认 `config.yaml` 存在且已填写，`docker compose up -d --build` 在项目根目录执行。
+- **容器一直重启 / 日志报找不到配置**：确认 `config.yaml` 存在且已填写，`docker compose up -d` 在项目根目录执行。
 - **strm 目录没被监控**：检查宿主机挂载路径与 `config.yaml` 的 `watch_dir` 是否一一对应，挂载使用 `:ro` 只读不影响监听。
 - **改完 config.yaml 未生效**：配置文件是启动时挂载的，执行 `docker compose restart fntv-strm-monitor` 或 `docker compose up -d` 重新创建容器。
+- **拉取 ghcr.io 镜像报 denied / unauthorized**：私有镜像需先 `echo "<你的GitHub PAT>" | docker login ghcr.io -u gesanqiu-mjl --password-stdin`（PAT 勾选 `read:packages` 权限），登录后重试 `docker compose up -d`。
 *（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
